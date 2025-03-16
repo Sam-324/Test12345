@@ -6,7 +6,7 @@ jsonl_file = 'train.jsonl'
 
 output_file = "classifier.jsonl"
 
-openai.api_key = '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'
+openai.api_key = ''
 
 # Define the range of indices you want to extract
 start_index = 5172
