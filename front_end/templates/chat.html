@@ -1,0 +1,333 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  <title>safetynet.ai</title>
+  <meta content="" name="description">
+  <meta content="" name="keywords">
+
+  <!-- Favicons -->
+  <link href="{% static 'img/s.png' %}" rel="icon">
+  <link href="{% static 'img/s.png' %}" rel="apple-touch-icon">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,600;1,700&family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Raleway:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+  <link href="{% static 'vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
+  <link href="{% static 'vendor/aos/aos.css' %}" rel="stylesheet">
+  <link href="{% static 'vendor/glightbox/css/glightbox.min.css' %}" rel="stylesheet">
+  <link href="{% static 'vendor/swiper/swiper-bundle.min.css' %}" rel="stylesheet">
+  <!-- Template Main CSS File -->
+  <link href="{% static 'css/main.css' %}" rel="stylesheet">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+
+<body>
+
+  <header id="header" class="header d-flex align-items-center">
+
+    <div class="container-fluid container-xl d-flex align-items-center justify-content-between">
+      <a href="index.html" class="logo d-flex align-items-center">
+        <!-- Uncomment the line below if you also wish to use an image logo -->
+        <!-- <img src="assets/img/logo.png" alt=""> -->
+        <h1>safetynet<span>.</span>ai</h1>
+      </a>
+
+
+      <i class="mobile-nav-toggle mobile-nav-show bi bi-list"></i>
+      <i class="mobile-nav-toggle mobile-nav-hide d-none bi bi-x"></i>
+
+    </div>
+  </header><!-- End Header -->
+  <!-- End Header -->
+
+  <!-- ======= Hero Section ======= -->
+
+  <!-- End Hero Section -->
+
+
+    <!-- ======= Our Services Section ======= -->
+    <section id="chatai" class="services sections-bg" style="background-color: white;">
+      <div class="container" data-aos="fade-up">
+        <div class="row gy-4" data-aos="fade-up" data-aos-delay="100">
+        </div>
+      </div>
+      
+<!---- Conversation Panel-->
+      <div class="container" data-aos="fade-up" id="chat-area">     
+
+        <div class="row my-3" id="human-block" style="display: none;">
+            <div class="col-auto">
+              <style>.shadow { box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important; } .img-diameter { width: 100px; height: 100px; }</style><img src="{% static 'img/human.png' %}" alt="Your Image" class="rounded-circle img-thumbnail shadow img-diameter">
+            </div>
+            <div class="col">
+              <div class="card h-100 border-0 shadow">
+                <div class="card-body" style="background-color: #edf2f4;">
+                  <p class="card-text" id="human-send"></p>
+                </div>
+              </div>
+            </div>
+        </div>
+
+          <div class="row my-3" id="AI-block" style="display: none;">         
+            <div class="col">
+              <div class="card h-100 border-0 shadow">
+                <div class="card-body" style="background-color: #ebdccb;">
+                  <p class="card-text" id="AI-response"></p>
+                </div>
+              </div>
+            </div>
+            <div class="col-auto">
+              <style>.shadow { box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important; } .img-diameter { width: 100px; height: 100px; }</style><img src="{% static 'img/bot.png' %}" alt="Your Image" class="rounded-circle img-thumbnail shadow img-diameter">
+            </div>
+          </div>
+        </div>
+
+        <!-- Text input and Send-->
+        <div class="card-footer text-muted d-flex justify-content-center align-items-center p-3 position-fixed bottom-0 w-100">
+          <div class="d-flex justify-content-center w-75">
+            <div class="input-group mb-0">
+              <textarea id="txt-input" class="form-control glow" placeholder="Type message"
+                aria-label="Recipient's username" aria-describedby="button-addon2" style="resize: vertical; overflow-y: auto;"></textarea>
+              <button class="btn btn-warning glowy" type="button" id="button-send" style="padding-top: .55rem;" disabled>
+                <i class="bi bi-send"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <style>
+        .position-fixed.bottom-0 {
+          position: fixed;
+          bottom: 0;
+        }
+        
+        .glow {
+          box-shadow: 0 0 10px white;
+        }
+        
+        .glowy {
+          box-shadow: 0 0 10px #0284a1d6;
+        }
+
+          .tooltip-text {
+          visibility: hidden;
+          position: absolute;
+          z-index: 1;
+          width: 800px;
+          color: white;
+          font-size: 12px;
+          background-color: #192733;
+          border-radius: 10px;
+          padding: 10px 15px 10px 15px;
+        }
+
+        .hover-text:hover .tooltip-text {
+          visibility: visible;
+        }
+
+        #top {
+          top: -40px;
+          left: -50%;
+        }
+
+        .hover-text {
+          position: relative;
+          display: inline-block;
+          margin: 5px;
+          font-family: Arial;
+          text-align: left;
+        }
+        </style>
+
+
+    </section>
+
+
+    <script>
+      //Global variables
+            var lastresponse='';
+            var lastquery='';
+            var source1data = '';
+            var reference1 = '';
+            var source2data = '';
+            var reference2 = '';
+            var $lastAIBlock='';
+            var datareceived=0;
+
+      $(document).ready(function() {
+
+        //Timer function
+        function startTimer() {
+          if (datareceived==0){
+            timer = setTimeout(function() {
+              resetTimer();
+              $lastAIBlock = $('#chat-area .row#AI-block:last-child');
+              $lastAIBlock.find('#AI-response').text('Server Timeout');
+              var footerHtml = '<div class="card-footer text-muted">' +
+                '<button class="btn btn-danger btn-sm" id="regenerate-button"><i class="bi bi-repeat"></i>&nbsp;Re-generate</button>' +
+                '</div>';
+              $lastAIBlock.append(footerHtml);
+
+            }, 60000); // Timer set to 7 seconds (7000 milliseconds)
+          }
+          
+      }
+
+      function resetTimer() {
+        clearTimeout(timer); // Clear the timer
+        enableTextArea();
+      }
+
+      function getSpinnerHtml() {
+        return '<div class="spinner-grow" style="width: 3rem; height: 3rem;" role="status">' +
+          '<span class="visually-hidden">Loading...</span>' +
+          '</div>';
+      }
+
+
+        $('#txt-input').on('input', function() {
+      $(this).css('height', 'auto');
+      var maxHeight = 150; // Maximum height in pixels
+      var scrollHeight = this.scrollHeight;
+      if (scrollHeight > maxHeight) {
+        scrollHeight = maxHeight;
+      }
+      $(this).css('height', scrollHeight + 'px');
+      var inputValue = $(this).val().trim();
+      var $button = $('#button-send');
+      
+      if (inputValue !== '') {
+        $button.prop('disabled', false);
+      } else {
+        $button.prop('disabled', true);
+      }
+    });
+
+    $('#txt-input').on('keydown', function(event) {
+  if (event.keyCode === 13 && !event.shiftKey) {
+    var inputText = $(this).val().trim();
+    if (inputText !== '') {
+      event.preventDefault();
+      sendMessage();
+    }
+  }
+});
+
+// Send data
+$('#button-send').on('click', function() {
+      sendMessage();
+    });
+
+    function disableTextArea() {
+      $('#txt-input').attr('placeholder', 'Generating Response...');
+      $('#txt-input').prop('disabled', true);
+      $('#button-send').prop('disabled', true);
+  }
+
+  function enableTextArea() {
+    $('#txt-input').attr('placeholder', 'Type message');
+    $('#txt-input').prop('disabled', false);
+    $('#button-send').prop('disabled', true);
+  }
+
+    function sendMessage() {
+      disableTextArea();
+      // Get input text
+      var inputText = $('#txt-input').val();
+      lastquery=inputText;
+      datareceived=0;
+      startTimer();
+      // Create new human block
+      var $newHumanBlock = $('#human-block').first().clone();
+      $newHumanBlock.find('#human-send').text(inputText);
+
+      // Create new AI block with spinner
+      var $newAIBlock = $('#AI-block').first().clone();
+      var spinnerHtml = '<div class="spinner-grow text-dark" style="width: 2rem; height: 2rem;" role="status">' +
+        '<span class="visually-hidden">Loading...</span>' +
+        '</div>';
+      $newAIBlock.find('#AI-response').html(spinnerHtml);
+      $newAIBlock.find('#AI-response').append(' &nbsp; &nbsp;Thinking...');
+
+      // Append new blocks to chat area
+      $newHumanBlock.appendTo('#chat-area');
+      $newAIBlock.appendTo('#chat-area');
+
+      $newHumanBlock.appendTo('#chat-area').show();
+      $newAIBlock.appendTo('#chat-area').show();
+      sendRequest();
+     
+      // Clear input text
+      $('#txt-input').val('');
+    };
+  
+
+    function sendRequest() {
+
+    console.log(lastquery)
+    $.ajax({
+      url: 'http://localhost:8000/API/rpc/?format=json&data='+lastquery, // 
+      method: 'GET', // Replace 'GET' with the appropriate HTTP method
+      dataType: 'json',
+      success: function(data) {
+        console.log(data);
+        lastresponse = data;
+      
+      // Do something with the retrieved data
+
+      $lastAIBlock = $('#chat-area .row#AI-block:last-child');
+      $lastAIBlock.find('#AI-response').text('');
+      $lastAIBlock.find('#AI-response').append(lastresponse);
+      datareceived=1;
+      resetTimer();
+      },
+
+      error: function(xhr, status, error) {
+        console.error(error); // Display any error in the console
+      }
+    });
+  }
+
+  $(document).on('click', 'a[data-toggle="modal"]', function() {
+    var sourceData = $(this).data('source');
+    $('#sourcedata').text(sourceData);
+  });
+
+  });
+      </script>
+
+    
+
+  </main><!-- End #main -->
+
+  <!-- ======= Footer ======= -->
+  
+
+  
+
+  <div id="preloader"></div>
+
+  <!-- Vendor JS Files -->
+  <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+  <script src="{% static 'vendor/aos/aos.js' %}"></script>
+  <script src="{% static 'vendor/glightbox/js/glightbox.min.js' %}"></script>
+  <script src="{% static 'vendor/purecounter/purecounter_vanilla.js' %}"></script>
+  <script src="{% static 'vendor/swiper/swiper-bundle.min.js' %}"></script>
+  <script src="{% static 'vendor/isotope-layout/isotope.pkgd.min.js' %}"></script>
+  <script src="{% static 'vendor/php-email-form/validate.js' %}"></script>
+
+  <!-- Template Main JS File -->
+  <script src="{% static 'js/main.js' %}"></script>
+
+</body>
+
+</html>
