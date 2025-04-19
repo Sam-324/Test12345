@@ -117,9 +117,12 @@ async def process_round(session,jobs,round_id):
     logger = setup_logging()
     logger.info(f"\n🚀 Starting round {round_id} with {len(jobs)} jobs...")
     start_time = time.time()
+    tasks = [
+        send_to_worker(session, worker_url, index, item_data, worker_id)
+        for worker_id, (index, item_data, worker_url) in enumerate(jobs)
+    ]
+    results = await asyncio.gather(*tasks)
 
-    tasks=[send_to_worker(session,worker_url,index,data,retries=0) for worker_id,(index,data,worker_url) in enumerate(jobs)]
-    results=await asyncio.gather(*tasks)
 
     elapsed=time.time()-start_time
     logger.info(f"✅ Round {round_id} completed in {elapsed:.2f}s\n")
