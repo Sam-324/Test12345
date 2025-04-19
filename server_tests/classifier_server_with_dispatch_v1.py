@@ -1,3 +1,7 @@
+#imports 
+#NB aiohttp can be installed via apt install python3-aiohttp 
+#i have a local .deb version for it
+
 import json 
 import os 
 import asyncio
@@ -6,18 +10,33 @@ from tqdm import tqdm
 import logging
 import time
 import tqdm
+import argparse
 
 
-WORKER_URLS=["a","b"] #just for testing 
+MAX_RETRIES = 3
+TIMEOUT = 60000  # seconds
+
+# Set the worker URLs here can be taken from ping script or arg parser
+WORKER_URLS=["http://localhost:11434/api/generate"]
+
+#cleanded dataset
 dataset_path='final_dataset.json'
+
+#output goes here
 results_path='results.json'
 
+
+
+# sets up logging
 def setup_logging():
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
     logger = logging.getLogger(__name__)
     return logger
 
 
+
+#creates classifier prompt to send across to the LLM
+#functopm Requires a response to classify
 def create_prompt(response):
     """
     Creates a prompt for the LLM with system instructions and the response to classify.
@@ -50,26 +69,29 @@ async def send_to_worker(session, worker_url, index, item_data, worker_id, retri
     prompt = item_data.get("prompt", "")
     response = item_data.get("response", "")
     is_safe = item_data.get("is_safe", None)
-    
+    print("here \n")
+   # print(prompt)
+    #print(response)
+    #print(is_safe)
+
     if not response.strip():
         return index, None
     
-    messages = create_classification_prompt(response)
+    messages = create_prompt(response)
     
     payload = {
-        "model": MODEL_NAME,
-        "messages": messages,
-        "stream": False
-    }
-    
+    "model": "deepseek-r1:1.5b",
+    "prompt": f"{messages[0]['content']}\n\n{messages[1]['content']}",
+    "stream": False
+}
     try:
         async with session.post(worker_url, json=payload, timeout=TIMEOUT) as resp:
             # Check for a successful status code
             if resp.status == 200:
                 data = await resp.json()
-                classification = data.get("message", {}).get("content", "").strip()
+                classification = data.get("response", "").strip()
                 print(f"[✓] Worker-{worker_id} finished job {index}")
-                
+                print(f"Classification: {classification}")
                 return index, {
                     "prompt": prompt,
                     "response": response,
@@ -110,21 +132,21 @@ async def send_to_worker(session, worker_url, index, item_data, worker_id, retri
         }
 
 
-async def process_round(session,jobs,round_id):
+async def process_round(session, jobs, round_id):
     """
     Process a round of jobs by sending data to workers and collecting results.
     """
     logger = setup_logging()
     logger.info(f"\n🚀 Starting round {round_id} with {len(jobs)} jobs...")
     start_time = time.time()
+
     tasks = [
-        send_to_worker(session, worker_url, index, item_data, worker_id)
-        for worker_id, (index, item_data, worker_url) in enumerate(jobs)
+        send_to_worker(session, worker_url, index, data, worker_id=worker_id, retries=0)
+        for worker_id, (index, data, worker_url) in enumerate(jobs)
     ]
     results = await asyncio.gather(*tasks)
 
-
-    elapsed=time.time()-start_time
+    elapsed = time.time() - start_time
     logger.info(f"✅ Round {round_id} completed in {elapsed:.2f}s\n")
     return results
 
@@ -132,14 +154,16 @@ async def main():
     #load dataset
 
     #start_index=0
-    end_index=10
+    end_index=3
     responses=[]
     with open(dataset_path,'r') as f:
         datafile=json.load(f)
         for entry in datafile:
             try:
-                response1 = entry["response"]
-                responses.append(response1)
+                prompt = entry.get("prompt", "")
+                response = entry.get("response", "")
+                is_safe = entry.get("is_safe", None)
+                responses.append({"prompt": prompt, "response": response, "is_safe": is_safe})
                 if end_index and len(responses) >= end_index:
                     break
             except json.JSONDecodeError:
@@ -158,23 +182,17 @@ async def main():
                     break
                 jobs.append((i, responses[i], worker_url))
                 i += 1
-            print(jobs)
+            #print(jobs)
             # Call the process_round function to send jobs to workers
             round_results = await process_round(session, jobs, round_id)
            
-           
-           #placeholder from previous dispatch
-            with open(results_path, "a") as f:
-                #placeholder from previous dispatch
-                for index, book_id, metadata in round_results:
-                    if metadata:
-                        result = {
-                            "index": index,
-                            "book_id": book_id,
-                            "metadata": metadata
-                            }
+            # Save the results to a file
+            with open(results_path, 'a') as f:
+                for index, result in round_results:
+                    if result is not None:
                         f.write(json.dumps(result) + "\n")
-
+            round_id += 1
+            
 
 if __name__ == "__main__":
     asyncio.run(main())
