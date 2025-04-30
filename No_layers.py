@@ -1,15 +1,22 @@
 import ollama
 import json
+import tqdm
+import logging
 import os
 import time
-import tqdm
-import numpy as np
-import logging
 
+
+
+
+#Program to call the Ollama API and save the response to a file
+# This program loads a dataset from a JSON file, creates a prompt from the data, and then calls the Ollama API to get a response.
+# The response is then saved to a new JSON file.
+# The program uses the ollama library to interact with the API and the json library to handle JSON data.
+# The  uses the os, time, tqdm, numpy, and logging libraries for various tasks such as file handling, time management, progress tracking, and logging.
 
 
 input_file="final_dataset.json"
-output_file="final_dataset_no_layers.json"
+output_file="no_layers.json"
 
 
 
@@ -31,6 +38,8 @@ def create_prompt(data):
 
 def get_response(prompt):
     """Get the response from the Ollama API"""
+    print(prompt)
+    print("WATCHHHH HERE")
     # Call the Ollama API to get the response
     response = ollama.chat(
         model="deepseek-r1:1.5b",
@@ -43,17 +52,29 @@ def get_response(prompt):
 
 
 
-def save_response(data, output_file, response):
-    """Save the response to the output file"""
-    with open(output_file, 'w') as f:
-        data_to_save = []
-        for item in data:
-            data_to_save.append({
-                "prompt": item['prompt'],
-                "response": response
-            })
+def save_response(prompt, output_file, response):
+    """Save only prompt and response to the output file"""
+    try:
+        # Check if file exists and load existing data
+        if os.path.exists(output_file):
+            with open(output_file, 'r') as f:
+                data_to_save = json.load(f)
+        else:
+            data_to_save = []
 
-        json.dump(data_to_save, f, indent=4)
+        # Only save prompt and response
+        new_entry = {
+            "prompt": prompt if isinstance(prompt, str) else prompt.get('prompt', ''),
+            "response": response
+        }
+        data_to_save.append(new_entry)
+
+        with open(output_file, 'w') as f:
+            json.dump(data_to_save, f, indent=4)
+            
+    except Exception as e:
+        logger.error(f"Error saving response: {e}")
+        raise
 
 
 # Set the logging level to INFO
@@ -81,47 +102,40 @@ def create_progress_bar(data):
 
 
 
-
-
-#Program to call the Ollama API and save the response to a file
-# This program loads a dataset from a JSON file, creates a prompt from the data, and then calls the Ollama API to get a response.
-# The response is then saved to a new JSON file.
-# The program uses the ollama library to interact with the API and the json library to handle JSON data.
-# The program also uses the os, time, tqdm, numpy, and logging libraries for various tasks such as file handling, time management, progress tracking, and logging.
-# The program is designed to be run from the command line and takes two arguments: the input file and the output file.
 # Main function to run the script
 
 def main():
     # Load the data from the input file
     total_data = load_data(input_file)
-
-
-    # Create a progress bar for the data processing
     progress_bar = create_progress_bar(total_data)
+    prompt_counter = 0
 
-    # Create the prompt from the data
-    for item in total_data:
-        # Log the data being processed
-        logger.info(f"Processing item: {item}")
-
-        prompt = create_prompt(item)
-
-        # Log the prompt creation
-        logger.info(f"Prompt created: {prompt}")
-
-        # Get the response from the Ollama API
-        response = get_response(prompt)
-
-        # Log the response
-        logger.info(f"Response received: {response}")
-
-        # Save the response to the output file
-        save_response(item, output_file, response)
-
-        # Update the progress bar
-        progress_bar.update(1)
-
-    
+    try:
+        for item in total_data:
+            logger.info(f"Processing item: {item}")
+            prompt = create_prompt(item)
+            logger.info(f"Prompt created: {prompt}")
+            
+            # Get response and save
+            response = get_response(prompt)
+            logger.info(f"Response received: {response}")
+            save_response(prompt, output_file, response)
+            
+            # Update counter and progress
+            prompt_counter += 1
+            progress_bar.update(1)
+            
+            # Clear context after every 5 prompts
+            if prompt_counter % 5 == 0:
+                logger.info("Clearing context window...")
+                ollama.clear()  # Clear the context window
+                time.sleep(1)  # Small delay to ensure clear completes
+                
+    except Exception as e:
+        logger.error(f"Error in main processing loop: {e}")
+        raise
+    finally:
+        progress_bar.close()
 
 
 if __name__ == "__main__":
@@ -135,7 +149,7 @@ if __name__ == "__main__":
     # Close the console handler
     console_handler.close()
     # Remove the file handler from the logger
-    logger.removeandler(file_handler)
+    logger.removeHandler(file_handler)
     # Remove the console handler from the logger
     logger.removeHandler(console_handler)
 
