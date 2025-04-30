@@ -39,7 +39,6 @@ def create_prompt(data):
 def get_response(prompt):
     """Get the response from the Ollama API"""
     print(prompt)
-    print("WATCHHHH HERE")
     # Call the Ollama API to get the response
     response = ollama.chat(
         model="deepseek-r1:1.5b",
