@@ -3,8 +3,6 @@ import ollama
 import tqdm
 import logging
 
-
-
 input_file_1='final_dataset.json'
 input_file_2='no_layers2.json'
 output_file_1='final_dataset_reflection_layer_outputs.json'
@@ -33,6 +31,11 @@ def setup_logging():
 
     logging.info("Console handler added to logger.")
     logging.info("Logging setup complete.")
+    #Display Logs in the console
+    logging.getLogger().setLevel(logging.INFO)
+    logging.info("Logging level set to INFO.")
+    logging.info("Logging setup complete.")
+
 
 def create_progress_bar(total):
     """Create a tqdm progress bar."""
@@ -41,7 +44,7 @@ def create_progress_bar(total):
 # Return Response from the Ollama API
 def get_response(response):
     """Get the response from the Ollama API"""
-    print(response)
+    #print(response)
     # Call the Ollama API to get the response
     response = ollama.chat(
         model="qwen2.5:1.5b",
@@ -116,17 +119,19 @@ def main():
         logging.info(f"Processing item with prompt: {prompt} and response: {response_from_input_file}")
         # Get the response from the Ollama API
         response = get_response(response_from_input_file)
-        print(response)
-        print("LOOK HERE")
+        #print(response)
+        #print("LOOK HERE")
         logging.info(f"Response: {response}")
         # Write the data to the output file
         write_data(prompt,response,output_file_1,response_from_input_file)
         # Update the progress bar
         no_of_processed_items += 1
-        if no_of_processed_items % 5 == 0:
+        if no_of_processed_items % 10 == 0:
+            #print("HERE")
             logging.info(f"Processed {no_of_processed_items} items.")
             # Clear the Context Window Via API Call
             reset_context()
+            logging.info("Context reset after processing 5 items.")
         progress_bar.update(1)
 
     # Close the progress bar
@@ -140,7 +145,6 @@ def main():
 
 if __name__ == "__main__":
     logging.info("Starting the script.")
-    # Call the main function
     main()
     logging.info("Script completed.")
 
