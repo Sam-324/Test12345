@@ -6,21 +6,15 @@ import os
 import time
 
 
-
-
 #Program to call the Ollama API and save the response to a file
 # This program loads a dataset from a JSON file, creates a prompt from the data, and then calls the Ollama API to get a response.
 # The response is then saved to a new JSON file.
 # The program uses the ollama library to interact with the API and the json library to handle JSON data.
-# The  uses the os, time, tqdm, numpy, and logging libraries for various tasks such as file handling, time management, progress tracking, and logging.
+# It also uses the tqdm library to create a progress bar and the logging library to log messages to a file and the console.
 
 
 input_file="final_dataset.json"
-output_file="no_layers.json"
-
-
-
-
+output_file="no_layers2.json"
 
 # Load the prompt from the dataset
 def load_data(input_file):
@@ -51,6 +45,7 @@ def get_response(prompt):
 
 
 
+
 def save_response(prompt, output_file, response):
     """Save only prompt and response to the output file"""
     try:
@@ -74,6 +69,22 @@ def save_response(prompt, output_file, response):
     except Exception as e:
         logger.error(f"Error saving response: {e}")
         raise
+
+# Clear the context window
+def reset_context():
+    """Reset the Ollama context by creating a new chat session"""
+    try:
+        # Reset by calling with an empty message
+        ollama.chat(
+            model="deepseek-r1:1.5b",
+            messages=[],
+            options={"reset": True}
+        )
+        logger.info("Context reset successful")
+    except Exception as e:
+        logger.error(f"Error resetting context: {e}")
+
+
 
 
 # Set the logging level to INFO
@@ -101,6 +112,9 @@ def create_progress_bar(data):
 
 
 
+
+
+
 # Main function to run the script
 
 def main():
@@ -108,7 +122,8 @@ def main():
     total_data = load_data(input_file)
     progress_bar = create_progress_bar(total_data)
     prompt_counter = 0
-
+    reset_context()  # Reset context at the start
+    logger.info("Starting the main processing loop...")
     try:
         for item in total_data:
             logger.info(f"Processing item: {item}")
@@ -124,10 +139,9 @@ def main():
             prompt_counter += 1
             progress_bar.update(1)
             
-            # Clear context after every 5 prompts
             if prompt_counter % 5 == 0:
                 logger.info("Clearing context window...")
-                ollama.clear()  # Clear the context window
+                reset_context() ## Clear context every 5 prompts
                 time.sleep(1)  # Small delay to ensure clear completes
                 
     except Exception as e:
@@ -137,7 +151,12 @@ def main():
         progress_bar.close()
 
 
+
+ 
+
 if __name__ == "__main__":
+
+
     main()
     # Close the progress bar
     tqdm.tqdm.close()
@@ -151,6 +170,4 @@ if __name__ == "__main__":
     logger.removeHandler(file_handler)
     # Remove the console handler from the logger
     logger.removeHandler(console_handler)
-
-
 
