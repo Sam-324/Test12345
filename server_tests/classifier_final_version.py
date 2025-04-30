@@ -5,7 +5,7 @@ import logging
 
 input_file_1='final_dataset.json'
 input_file_2='no_layers2.json'
-output_file_1='final_dataset_reflection_layer_outputs.json'
+output_file_1='classifier_results_from_dataset_model_qwen2.5_1b.json'
 
 
 def setup_logging():
@@ -117,7 +117,7 @@ def main():
         prompt = item['prompt']
         response_from_input_file = item['response']
         logging.info(f"Processing item with prompt: {prompt} and response: {response_from_input_file}")
-        # Get the response from the Ollama API
+        # Get theZ response from the Ollama API
         response = get_response(response_from_input_file)
         #print(response)
         #print("LOOK HERE")
